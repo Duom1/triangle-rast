@@ -97,21 +97,23 @@ void updateDrawFrame(void) {
   BeginDrawing();
   Vector2 p;
   ClearBackground(RAYWHITE);
-  for (p.x = bbox.x; p.x < bbox.z; ++p.x) {
+  if (ABC >= 0) {
     for (p.y = bbox.y; p.y < bbox.w; ++p.y) {
-      Color color = {200, 200, 200, 255};
-      float ABP = edgeFunction(a, b, p);
-      float BCP = edgeFunction(b, c, p);
-      float CAP = edgeFunction(c, a, p);
-      if (ABP >= (float)0 && BCP >= (float)0 && CAP >= (float)0) {
-        float wa = BCP / ABC;
-        float wb = CAP / ABC;
-        float wc = ABP / ABC;
-        color.r = 255 * wa;
-        color.g = 255 * wb;
-        color.b = 255 * wc;
+      for (p.x = bbox.x; p.x < bbox.z; ++p.x) {
+        Color color = {200, 200, 200, 255};
+        float ABP = edgeFunction(a, b, p);
+        float BCP = edgeFunction(b, c, p);
+        float CAP = edgeFunction(c, a, p);
+        if (ABP >= (float)0 && BCP >= (float)0 && CAP >= (float)0) {
+          float wa = BCP / ABC;
+          float wb = CAP / ABC;
+          float wc = ABP / ABC;
+          color.r = 255 * wa;
+          color.g = 255 * wb;
+          color.b = 255 * wc;
+        }
+        DrawPixelV(p, color);
       }
-      DrawPixelV(p, color);
     }
   }
   DrawCircleV(ac.p, ac.r, BLACK);
