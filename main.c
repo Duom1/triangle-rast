@@ -23,6 +23,18 @@ float edgeFunction(Vector2 a, Vector2 b, Vector2 c) {
   return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
 }
 
+Color calculateColor(float ABP, float BCP, float CAP, float ABC, Color acol,
+                     Color bcol, Color ccol) {
+  Color color;
+  float wa = BCP / ABC;
+  float wb = CAP / ABC;
+  float wc = ABP / ABC;
+  color.r = acol.r * wa + bcol.r * wb + ccol.r * wc;
+  color.g = acol.g * wa + bcol.g * wb + ccol.g * wc;
+  color.b = acol.b * wa + bcol.b * wb + ccol.b * wc;
+  return color;
+}
+
 void updateDrawFrame(void) {
   static Vector2 av;
   static Vector2 bv;
@@ -96,6 +108,9 @@ void updateDrawFrame(void) {
 
   BeginDrawing();
   Vector2 p;
+  static const Color acol = {255, 0, 0, 255};
+  static const Color bcol = {0, 255, 0, 255};
+  static const Color ccol = {0, 120, 225, 255};
   ClearBackground(RAYWHITE);
   if (ABC >= 0) {
     for (p.y = bbox.y; p.y < bbox.w; ++p.y) {
@@ -104,23 +119,32 @@ void updateDrawFrame(void) {
         float ABP = edgeFunction(a, b, p);
         float BCP = edgeFunction(b, c, p);
         float CAP = edgeFunction(c, a, p);
-        if (ABP >= (float)0 && BCP >= (float)0 && CAP >= (float)0) {
-          float wa = BCP / ABC;
-          float wb = CAP / ABC;
-          float wc = ABP / ABC;
-          color.r = 255 * wa;
-          color.g = 255 * wb;
-          color.b = 255 * wc;
+        if (ABP >= (float)0 && BCP >= (float)0 && CAP >= (float)0)
+          color = calculateColor(ABP, BCP, CAP, ABC, acol, bcol, ccol);
+        if (ABP < .05) {
+          ABP = 0;
+          color = calculateColor(ABP, BCP, CAP, ABC, acol, bcol, ccol);
+          color.a = 120;
+        }
+        if (BCP < .05) {
+          BCP = 0;
+          color = calculateColor(ABP, BCP, CAP, ABC, acol, bcol, ccol);
+          color.a = 120;
+        }
+        if (CAP < 0.5) {
+          CAP = 0;
+          color = calculateColor(ABP, BCP, CAP, ABC, acol, bcol, ccol);
+          color.a = 120;
         }
         DrawPixelV(p, color);
       }
     }
+    DrawCircleV(ac.p, ac.r, BLACK);
+    DrawCircleV(bc.p, bc.r, BLACK);
+    DrawCircleV(cc.p, cc.r, BLACK);
+    DrawFPS(10, 10);
+    EndDrawing();
   }
-  DrawCircleV(ac.p, ac.r, BLACK);
-  DrawCircleV(bc.p, bc.r, BLACK);
-  DrawCircleV(cc.p, cc.r, BLACK);
-  DrawFPS(10, 10);
-  EndDrawing();
 }
 
 int main(void) {
